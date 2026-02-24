@@ -11,7 +11,7 @@ import type { Incident } from "@/types/rescue";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (incident: Incident) => void;
+  onAdd: (data: { title: string; description: string; priority: Incident["priority"]; location: string; lat: number; lng: number }) => void | Promise<void>;
 }
 
 const locations = [
@@ -53,24 +53,20 @@ export function AddIncidentModal({ open, onOpenChange, onAdd }: Props) {
     setLocation("");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !location) return;
 
     const coords = locationCoords[location] || { lat: 49.27, lng: 19.98 };
-    const newIncident: Incident = {
-      id: `i-${Date.now()}`,
+
+    await onAdd({
       title: title.trim(),
       description: description.trim(),
-      status: "active",
       priority,
       location,
       lat: coords.lat,
       lng: coords.lng,
-      reportedAt: new Date().toISOString(),
-      assignedRescuers: [],
-    };
+    });
 
-    onAdd(newIncident);
     reset();
     onOpenChange(false);
   };

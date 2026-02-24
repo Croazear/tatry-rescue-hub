@@ -2,7 +2,7 @@
  * Hooks to fetch data from Convex with fallback to mock data.
  * When VITE_CONVEX_URL is not set, mock data is used.
  */
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { convex } from "@/lib/convex";
 import * as mockData from "@/data/mockData";
 
@@ -10,7 +10,7 @@ import * as mockData from "@/data/mockData";
 const api: any = {
   rescuers: { list: "rescuers:list" },
   vehicles: { list: "vehicles:list" },
-  incidents: { list: "incidents:list" },
+  incidents: { list: "incidents:list", create: "incidents:create" },
   zones: { list: "zones:list" },
   scheduleEntries: { list: "scheduleEntries:list" },
 };
@@ -43,4 +43,9 @@ export function useScheduleEntries() {
   const convexData = convex ? useQuery(api.scheduleEntries.list) : undefined;
   if (!convex) return { data: mockData.scheduleEntries, isLoading: false };
   return { data: convexData ?? [], isLoading: convexData === undefined };
+}
+
+export function useCreateIncident() {
+  const mutate = convex ? useMutation(api.incidents.create) : null;
+  return mutate;
 }

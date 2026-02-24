@@ -144,8 +144,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                 const isAssigned = incident.assignedRescuers.includes(r.id);
                 const isSelected = selectedRescuers.includes(r.id);
                 return (
-                  <label
+                  <div
                     key={r.id}
+                    onClick={() => !isAssigned && toggleRescuer(r.id)}
                     className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
                       isAssigned
                         ? "bg-success/10 border border-success/30"
@@ -169,7 +170,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                         Przypisany
                       </Badge>
                     )}
-                  </label>
+                  </div>
                 );
               })}
           </div>
@@ -190,8 +191,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                   const isSelected = selectedVehicles.includes(v.id);
                   const isAvailable = v.status === "available";
                   return (
-                    <label
+                    <div
                       key={v.id}
+                      onClick={() => isAvailable && toggleVehicle(v.id)}
                       className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
                         isSelected
                           ? "bg-primary/10 border border-primary/30"
@@ -212,7 +214,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                       >
                         {isAvailable ? "Dostępny" : v.status === "in-use" ? "W użyciu" : "Serwis"}
                       </Badge>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -228,8 +230,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                   const isSelected = selectedVehicles.includes(v.id);
                   const isAvailable = v.status === "available";
                   return (
-                    <label
+                    <div
                       key={v.id}
+                      onClick={() => isAvailable && toggleVehicle(v.id)}
                       className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
                         isSelected
                           ? "bg-info/10 border border-info/30"
@@ -242,7 +245,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                         <p className="text-sm font-medium truncate">{v.name}</p>
                         <p className="text-xs text-muted-foreground">{v.location}</p>
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
               </div>
@@ -258,8 +261,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                   const isSelected = selectedVehicles.includes(v.id);
                   const isAvailable = v.status === "available";
                   return (
-                    <label
+                    <div
                       key={v.id}
+                      onClick={() => isAvailable && toggleVehicle(v.id)}
                       className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
                         isSelected
                           ? "bg-secondary border border-border"
@@ -271,7 +275,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
               </div>

@@ -23,6 +23,18 @@ export const assignRescuers = mutation({
   },
 });
 
+export const resolve = mutation({
+  args: { incidentId: v.id("incidents") },
+  handler: async (ctx, { incidentId }) => {
+    const incident = await ctx.db.get(incidentId);
+    if (!incident) throw new Error("Incident not found");
+    await ctx.db.patch(incidentId, {
+      status: "resolved",
+      resolvedAt: new Date().toISOString(),
+    });
+  },
+});
+
 export const create = mutation({
   args: {
     title: v.string(),

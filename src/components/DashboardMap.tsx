@@ -1,68 +1,80 @@
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { Rescuer, Incident } from "@/types/rescue";
-import { MapPin } from "lucide-react";
+
+// Fix default marker icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+const createColorIcon = (color: string) =>
+  L.divIcon({
+    className: "",
+    html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid hsl(220 20% 10%);box-shadow:0 0 6px ${color}80;"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+
+const incidentIcon = L.divIcon({
+  className: "",
+  html: `<div style="width:16px;height:16px;border-radius:50%;background:hsl(0 72% 51%);border:2px solid #fff;box-shadow:0 0 10px hsl(0 72% 51% / 0.6);animation:pulse 2s infinite;"></div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+});
 
 interface Props {
   rescuers: Rescuer[];
   incidents: Incident[];
 }
 
+const CENTER: [number, number] = [49.235, 19.98];
+
 export function DashboardMap({ rescuers, incidents }: Props) {
-  // Simplified SVG map representation of Tatras area
-  const mapBounds = { minLat: 49.17, maxLat: 49.28, minLng: 19.85, maxLng: 20.15 };
-  const width = 600;
-  const height = 400;
-
-  const toXY = (lat: number, lng: number) => ({
-    x: ((lng - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * width,
-    y: height - ((lat - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * height,
-  });
-
   return (
     <div className="glass-card p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Mapa operacyjna</h3>
-      <div className="relative w-full rounded-lg overflow-hidden bg-secondary/30" style={{ aspectRatio: "3/2" }}>
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
-          {/* Background grid */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <g key={i}>
-              <line x1={i * (width / 10)} y1={0} x2={i * (width / 10)} y2={height} stroke="hsl(220 14% 18%)" strokeWidth="0.5" />
-              <line x1={0} y1={i * (height / 10)} x2={width} y2={i * (height / 10)} stroke="hsl(220 14% 18%)" strokeWidth="0.5" />
-            </g>
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        Mapa operacyjna
+      </h3>
+      <div className="rounded-lg overflow-hidden" style={{ height: 400 }}>
+        <MapContainer
+          center={CENTER}
+          zoom={12}
+          style={{ height: "100%", width: "100%" }}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {incidents.map((inc) => (
+            <Marker key={inc.id} position={[inc.lat, inc.lng]} icon={incidentIcon}>
+              <Popup>
+                <strong>{inc.title}</strong>
+                <br />
+                {inc.location}
+              </Popup>
+            </Marker>
           ))}
 
-          {/* Mountain contour lines (decorative) */}
-          <ellipse cx={300} cy={200} rx={200} ry={120} fill="none" stroke="hsl(220 14% 22%)" strokeWidth="1" strokeDasharray="4 4" />
-          <ellipse cx={300} cy={210} rx={140} ry={80} fill="none" stroke="hsl(220 14% 24%)" strokeWidth="1" strokeDasharray="4 4" />
-          <ellipse cx={310} cy={220} rx={80} ry={45} fill="none" stroke="hsl(220 14% 26%)" strokeWidth="1" strokeDasharray="4 4" />
-
-          {/* Incident markers */}
-          {incidents.map((inc) => {
-            const pos = toXY(inc.lat, inc.lng);
-            return (
-              <g key={inc.id}>
-                <circle cx={pos.x} cy={pos.y} r={12} fill="hsl(0 72% 51% / 0.2)" className="status-pulse" />
-                <circle cx={pos.x} cy={pos.y} r={5} fill="hsl(0 72% 51%)" />
-                <text x={pos.x + 14} y={pos.y + 4} fill="hsl(0 72% 51%)" fontSize="8" fontWeight="600">
-                  {inc.location}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Rescuer markers */}
           {rescuers.map((r) => {
             if (r.lat === 0) return null;
-            const pos = toXY(r.lat, r.lng);
             return (
-              <g key={r.id}>
-                <circle cx={pos.x} cy={pos.y} r={6} fill={r.color} stroke="hsl(220 20% 10%)" strokeWidth="2" />
-                <text x={pos.x + 10} y={pos.y + 3} fill={r.color} fontSize="7" fontWeight="500">
-                  {r.name.split(" ")[1]}
-                </text>
-              </g>
+              <Marker key={r.id} position={[r.lat, r.lng]} icon={createColorIcon(r.color)}>
+                <Popup>
+                  <strong>{r.name}</strong>
+                  <br />
+                  {r.role} — {r.zone}
+                </Popup>
+              </Marker>
             );
           })}
-        </svg>
+        </MapContainer>
       </div>
     </div>
   );

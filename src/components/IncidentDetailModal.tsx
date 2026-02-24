@@ -79,6 +79,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   rescuers: Rescuer[];
   vehicles: Vehicle[];
+  allIncidents?: Incident[];
   onAssign?: (
     incidentId: string,
     rescuerIds: string[],
@@ -92,12 +93,20 @@ export function IncidentDetailModal({
   onOpenChange,
   rescuers,
   vehicles,
+  allIncidents = [],
   onAssign,
 }: Props) {
   const [selectedRescuers, setSelectedRescuers] = useState<string[]>([]);
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
 
   if (!incident) return null;
+
+  // Rescuers busy in OTHER active incidents
+  const busyRescuerIds = new Set(
+    allIncidents
+      .filter((i) => i.status === "active" && i.id !== incident.id)
+      .flatMap((i) => i.assignedRescuers ?? [])
+  );
 
   const requirements = zoneVehicleRequirements[incident.location] || {
     required: ["car"],
@@ -206,23 +215,27 @@ export function IncidentDetailModal({
               .map((r) => {
                 const isAssigned = incident.assignedRescuers.includes(r.id);
                 const isSelected = selectedRescuers.includes(r.id);
+                const isBusy = !isAssigned && busyRescuerIds.has(r.id);
+                const isDisabled = isAssigned || isBusy;
                 return (
                   <div
                     key={r.id}
-                    onClick={() => !isAssigned && toggleRescuer(r.id)}
-                    className={`flex items-center gap-3 p-2.5 rounded-md cursor-pointer transition-colors ${
-                      isAssigned
-                        ? "bg-success/10 border border-success/30"
-                        : isSelected
-                          ? "bg-primary/10 border border-primary/30"
-                          : "bg-secondary/50 hover:bg-secondary border border-transparent"
+                    onClick={() => !isDisabled && toggleRescuer(r.id)}
+                    className={`flex items-center gap-3 p-2.5 rounded-md transition-colors ${
+                      isDisabled && !isAssigned
+                        ? "bg-muted/30 border border-transparent opacity-50 cursor-not-allowed"
+                        : isAssigned
+                          ? "bg-success/10 border border-success/30 cursor-default"
+                          : isSelected
+                            ? "bg-primary/10 border border-primary/30 cursor-pointer"
+                            : "bg-secondary/50 hover:bg-secondary border border-transparent cursor-pointer"
                     }`}
                   >
                     <Checkbox
                       checked={isAssigned || isSelected}
-                      disabled={isAssigned}
+                      disabled={isDisabled}
                       onClick={(e) => e.stopPropagation()}
-                      onCheckedChange={() => !isAssigned && toggleRescuer(r.id)}
+                      onCheckedChange={() => !isDisabled && toggleRescuer(r.id)}
                     />
                     <div
                       className="w-2.5 h-2.5 rounded-full"
@@ -238,6 +251,14 @@ export function IncidentDetailModal({
                         className="bg-success/20 text-success border-success/30 text-[10px]"
                       >
                         Przypisany
+                      </Badge>
+                    )}
+                    {isBusy && (
+                      <Badge
+                        variant="outline"
+                        className="bg-warning/20 text-warning border-warning/30 text-[10px]"
+                      >
+                        Zajęty
                       </Badge>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Rescuer, Zone } from "@/types/rescue";
@@ -24,59 +24,71 @@ interface Props {
   zones: Zone[];
 }
 
-// Zone visualization circles
 const zoneCircles = [
-  { center: [49.232, 19.981] as [number, number], radius: 2500, color: "hsl(280 80% 55%)", label: "Szczyty (>2000m)" },
-  { center: [49.225, 19.99] as [number, number], radius: 4500, color: "hsl(0 72% 51%)", label: "Turnie (1500-2000m)" },
-  { center: [49.235, 19.99] as [number, number], radius: 7000, color: "hsl(38 92% 50%)", label: "Hale (1000-1500m)" },
-  { center: [49.24, 19.98] as [number, number], radius: 10000, color: "hsl(142 71% 45%)", label: "Doliny (<1000m)" },
+  { center: [49.232, 19.981] as [number, number], radius: 2500, color: "hsl(280 80% 55%)" },
+  { center: [49.225, 19.99] as [number, number], radius: 4500, color: "hsl(0 72% 51%)" },
+  { center: [49.235, 19.99] as [number, number], radius: 7000, color: "hsl(38 92% 50%)" },
+  { center: [49.24, 19.98] as [number, number], radius: 10000, color: "hsl(142 71% 45%)" },
 ];
 
 const CENTER: [number, number] = [49.23, 19.98];
 
 export function TatraMap({ rescuers, zones }: Props) {
+  const mapElementRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const overlaysRef = useRef<L.LayerGroup | null>(null);
+
+  useEffect(() => {
+    if (!mapElementRef.current || mapRef.current) return;
+
+    const map = L.map(mapElementRef.current, {
+      center: CENTER,
+      zoom: 12,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    overlaysRef.current = L.layerGroup().addTo(map);
+    mapRef.current = map;
+
+    setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      overlaysRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!overlaysRef.current) return;
+
+    const overlays = overlaysRef.current;
+    overlays.clearLayers();
+
+    zoneCircles.forEach((z) => {
+      L.circle(z.center, {
+        radius: z.radius,
+        color: z.color,
+        fillColor: z.color,
+        fillOpacity: 0.06,
+        weight: 1,
+      }).addTo(overlays);
+    });
+
+    rescuers.forEach((r) => {
+      if (r.lat === 0) return;
+      const marker = L.marker([r.lat, r.lng], { icon: createColorIcon(r.color) }).addTo(overlays);
+      marker.bindPopup(`<strong>${r.name}</strong><br/>${r.role} — ${r.zone}`);
+    });
+  }, [rescuers, zones]);
+
   return (
     <div className="glass-card p-4">
-      <div className="rounded-lg overflow-hidden" style={{ height: 500 }}>
-        <MapContainer
-          center={CENTER}
-          zoom={12}
-          style={{ height: "100%", width: "100%" }}
-          scrollWheelZoom={true}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-
-          {zoneCircles.map((z, i) => (
-            <Circle
-              key={i}
-              center={z.center}
-              radius={z.radius}
-              pathOptions={{
-                color: z.color,
-                fillColor: z.color,
-                fillOpacity: 0.06,
-                weight: 1,
-              }}
-            />
-          ))}
-
-          {rescuers.map((r) => {
-            if (r.lat === 0) return null;
-            return (
-              <Marker key={r.id} position={[r.lat, r.lng]} icon={createColorIcon(r.color)}>
-                <Popup>
-                  <strong>{r.name}</strong>
-                  <br />
-                  {r.role} — {r.zone}
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MapContainer>
-      </div>
+      <div ref={mapElementRef} className="rounded-lg overflow-hidden" style={{ height: 500 }} />
     </div>
   );
 }

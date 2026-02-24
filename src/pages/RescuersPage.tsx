@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useRescuers, useScheduleEntries, useIncidents, useVehicles } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { User, Plane, Bike, Snowflake, Car, Boxes } from "lucide-react";
 import { ScheduleCalendar } from "@/components/ScheduleCalendar";
+import { RescuerDetailModal } from "@/components/RescuerDetailModal";
 
 const vehicleIcons: Record<string, React.ElementType> = {
   helicopter: Plane,
@@ -16,6 +18,7 @@ const RescuersPage = () => {
   const { data: scheduleEntries } = useScheduleEntries();
   const { data: incidents } = useIncidents();
   const { data: vehicles } = useVehicles();
+  const [selectedRescuer, setSelectedRescuer] = useState<typeof rescuers[0] | null>(null);
 
   const activeIncidents = incidents.filter((i) => i.status === "active");
   const rescuersOnAction = new Set(activeIncidents.flatMap((i) => i.assignedRescuers));
@@ -66,7 +69,7 @@ const RescuersPage = () => {
               const VehicleIcon = vehicle ? vehicleIcons[vehicle.type] : null;
 
               return (
-                <div key={rid} className="glass-card p-4 flex items-center gap-4">
+                <div key={rid} className="glass-card p-4 flex items-center gap-4 cursor-pointer hover:bg-secondary/60 transition-colors" onClick={() => setSelectedRescuer(r)}>
                   <div className="flex items-center justify-center w-10 h-10 rounded-full border-2" style={{ borderColor: r.color, backgroundColor: `${r.color}20` }}>
                     <User className="w-5 h-5" style={{ color: r.color }} />
                   </div>
@@ -96,6 +99,17 @@ const RescuersPage = () => {
           <ScheduleCalendar entries={scheduleEntries} rescuers={rescuers} />
         </div>
       </div>
+
+      <RescuerDetailModal
+        rescuer={selectedRescuer as any}
+        open={!!selectedRescuer}
+        onOpenChange={(open) => { if (!open) setSelectedRescuer(null); }}
+        onSave={(updated) => {
+          // TODO: persist to Convex when mutation is available
+          console.log("Saved rescuer:", updated);
+          setSelectedRescuer(null);
+        }}
+      />
     </div>
   );
 };

@@ -1,77 +1,81 @@
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { Rescuer, Zone } from "@/types/rescue";
+
+// Fix default marker icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+const createColorIcon = (color: string) =>
+  L.divIcon({
+    className: "",
+    html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid hsl(220 20% 10%);box-shadow:0 0 6px ${color}80;"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
 
 interface Props {
   rescuers: Rescuer[];
   zones: Zone[];
 }
 
+// Zone visualization circles
+const zoneCircles = [
+  { center: [49.232, 19.981] as [number, number], radius: 2500, color: "hsl(280 80% 55%)", label: "Szczyty (>2000m)" },
+  { center: [49.225, 19.99] as [number, number], radius: 4500, color: "hsl(0 72% 51%)", label: "Turnie (1500-2000m)" },
+  { center: [49.235, 19.99] as [number, number], radius: 7000, color: "hsl(38 92% 50%)", label: "Hale (1000-1500m)" },
+  { center: [49.24, 19.98] as [number, number], radius: 10000, color: "hsl(142 71% 45%)", label: "Doliny (<1000m)" },
+];
+
+const CENTER: [number, number] = [49.23, 19.98];
+
 export function TatraMap({ rescuers, zones }: Props) {
-  const width = 800;
-  const height = 500;
-  const mapBounds = { minLat: 49.17, maxLat: 49.28, minLng: 19.85, maxLng: 20.15 };
-
-  const toXY = (lat: number, lng: number) => ({
-    x: ((lng - mapBounds.minLng) / (mapBounds.maxLng - mapBounds.minLng)) * width,
-    y: height - ((lat - mapBounds.minLat) / (mapBounds.maxLat - mapBounds.minLat)) * height,
-  });
-
   return (
     <div className="glass-card p-4">
-      <div className="relative w-full rounded-lg overflow-hidden bg-secondary/30" style={{ aspectRatio: "8/5" }}>
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
-          {/* Grid */}
-          {Array.from({ length: 16 }).map((_, i) => (
-            <g key={i}>
-              <line x1={i * (width / 16)} y1={0} x2={i * (width / 16)} y2={height} stroke="hsl(220 14% 16%)" strokeWidth="0.5" />
-              <line x1={0} y1={i * (height / 10)} x2={width} y2={i * (height / 10)} stroke="hsl(220 14% 16%)" strokeWidth="0.5" />
-            </g>
+      <div className="rounded-lg overflow-hidden" style={{ height: 500 }}>
+        <MapContainer
+          center={CENTER}
+          zoom={12}
+          style={{ height: "100%", width: "100%" }}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {zoneCircles.map((z, i) => (
+            <Circle
+              key={i}
+              center={z.center}
+              radius={z.radius}
+              pathOptions={{
+                color: z.color,
+                fillColor: z.color,
+                fillOpacity: 0.06,
+                weight: 1,
+              }}
+            />
           ))}
 
-          {/* Zone rings - valleys (easy) */}
-          <ellipse cx={400} cy={260} rx={340} ry={200} fill="hsl(142 71% 45% / 0.06)" stroke="hsl(142 71% 45% / 0.3)" strokeWidth="1" />
-          {/* Mid altitude (medium) */}
-          <ellipse cx={400} cy={270} rx={240} ry={140} fill="hsl(38 92% 50% / 0.06)" stroke="hsl(38 92% 50% / 0.3)" strokeWidth="1" />
-          {/* Higher (hard) */}
-          <ellipse cx={410} cy={280} rx={140} ry={80} fill="hsl(0 72% 51% / 0.06)" stroke="hsl(0 72% 51% / 0.3)" strokeWidth="1" />
-          {/* Peaks (extreme) */}
-          <ellipse cx={415} cy={285} rx={60} ry={35} fill="hsl(280 80% 55% / 0.08)" stroke="hsl(280 80% 55% / 0.3)" strokeWidth="1" />
-
-          {/* Key locations */}
-          {[
-            { name: "Giewont", lat: 49.2504, lng: 19.9337 },
-            { name: "Kasprowy Wierch", lat: 49.2320, lng: 19.9813 },
-            { name: "Morskie Oko", lat: 49.2012, lng: 20.0715 },
-            { name: "Rysy", lat: 49.1795, lng: 20.0880 },
-            { name: "Hala Gąsienicowa", lat: 49.2350, lng: 20.0100 },
-            { name: "Dolina Pięciu Stawów", lat: 49.2150, lng: 20.0100 },
-            { name: "Zakopane", lat: 49.2992, lng: 19.9496 },
-          ].map((loc) => {
-            const pos = toXY(loc.lat, loc.lng);
-            return (
-              <g key={loc.name}>
-                <circle cx={pos.x} cy={pos.y} r={3} fill="hsl(210 20% 40%)" />
-                <text x={pos.x + 6} y={pos.y + 3} fill="hsl(210 20% 60%)" fontSize="9" fontWeight="500">
-                  {loc.name}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Rescuer positions */}
           {rescuers.map((r) => {
             if (r.lat === 0) return null;
-            const pos = toXY(r.lat, r.lng);
             return (
-              <g key={r.id}>
-                <circle cx={pos.x} cy={pos.y} r={10} fill={`${r.color}30`} />
-                <circle cx={pos.x} cy={pos.y} r={5} fill={r.color} stroke="hsl(220 20% 10%)" strokeWidth="2" />
-                <text x={pos.x + 12} y={pos.y + 4} fill={r.color} fontSize="8" fontWeight="600">
-                  {r.name}
-                </text>
-              </g>
+              <Marker key={r.id} position={[r.lat, r.lng]} icon={createColorIcon(r.color)}>
+                <Popup>
+                  <strong>{r.name}</strong>
+                  <br />
+                  {r.role} — {r.zone}
+                </Popup>
+              </Marker>
             );
           })}
-        </svg>
+        </MapContainer>
       </div>
     </div>
   );

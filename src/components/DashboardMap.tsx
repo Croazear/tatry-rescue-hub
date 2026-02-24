@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Rescuer, Incident } from "@/types/rescue";
@@ -27,6 +26,14 @@ const incidentIcon = L.divIcon({
   iconAnchor: [8, 8],
 });
 
+// Zone visualization circles
+const zoneCircles = [
+  { center: [49.232, 19.981] as [number, number], radius: 2500, color: "hsl(280 80% 55%)", label: "Szczyty (>2000m)" },
+  { center: [49.225, 19.99] as [number, number], radius: 4500, color: "hsl(0 72% 51%)", label: "Turnie (1500-2000m)" },
+  { center: [49.235, 19.99] as [number, number], radius: 7000, color: "hsl(38 92% 50%)", label: "Hale (1000-1500m)" },
+  { center: [49.24, 19.98] as [number, number], radius: 10000, color: "hsl(142 71% 45%)", label: "Doliny (<1000m)" },
+];
+
 interface Props {
   rescuers: Rescuer[];
   incidents: Incident[];
@@ -51,6 +58,20 @@ export function DashboardMap({ rescuers, incidents }: Props) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          {zoneCircles.map((z, i) => (
+            <Circle
+              key={i}
+              center={z.center}
+              radius={z.radius}
+              pathOptions={{
+                color: z.color,
+                fillColor: z.color,
+                fillOpacity: 0.06,
+                weight: 1,
+              }}
+            />
+          ))}
 
           {incidents.map((inc) => (
             <Marker key={inc.id} position={[inc.lat, inc.lng]} icon={incidentIcon}>

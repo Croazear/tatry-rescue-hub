@@ -15,6 +15,16 @@ import { IncidentDetailModal } from "@/components/IncidentDetailModal";
 import { AddIncidentModal } from "@/components/AddIncidentModal";
 import type { Incident, Rescuer, Vehicle } from "@/types/rescue";
 
+// Zone-based vehicle requirements (shared with IncidentDetailModal)
+const zoneVehicleRequirements: Record<string, { required: string[]; recommended: string[] }> = {
+  "Kasprowy Wierch": { required: ["helicopter"], recommended: ["sled"] },
+  "Rysy": { required: ["helicopter"], recommended: ["sled"] },
+  "Giewont": { required: ["helicopter"], recommended: ["sled"] },
+  "Dolina Pięciu Stawów": { required: ["quad", "snowmobile"], recommended: ["sled"] },
+  "Hala Gąsienicowa": { required: ["quad", "snowmobile"], recommended: ["sled"] },
+  "Morskie Oko": { required: ["car", "quad"], recommended: ["snowmobile"] },
+};
+
 const priorityLabel: Record<string, string> = {
   low: "Niski",
   medium: "Średni",
@@ -177,9 +187,36 @@ const ReportsPage = () => {
         onOpenChange={setAddOpen}
         onAdd={async (data) => {
           if (createIncident) {
-            await createIncident(data);
+            const newId = await createIncident(data);
+
+            // Auto-assign rescuers from the incident zone (active only) and required vehicles (available only)
+            if (assignRescuers && newId) {
+              const zoneReqs = zoneVehicleRequirements[data.location];
+              const requiredTypes = zoneReqs?.required ?? [];
+
+              // Ratownicy ze strefy zgłoszenia, aktywni
+              const autoRescuerIds = rescuers
+                .filter((r) => r.zone === data.location && r.status === "active")
+                .map((r) => r.id);
+
+              // Wymagane pojazdy – po jednym dostępnym z każdego typu
+              const autoVehicleIds: string[] = [];
+              for (const type of requiredTypes) {
+                const v = vehicles.find(
+                  (v) => v.type === type && v.status === "available" && !autoVehicleIds.includes(v.id)
+                );
+                if (v) autoVehicleIds.push(v.id);
+              }
+
+              if (autoRescuerIds.length > 0 || autoVehicleIds.length > 0) {
+                await assignRescuers({
+                  incidentId: newId as any,
+                  rescuerIds: autoRescuerIds,
+                  vehicleIds: autoVehicleIds,
+                });
+              }
+            }
           } else {
-            // Fallback mock
             setLocalIncidents((prev) => [
               ...prev,
               {

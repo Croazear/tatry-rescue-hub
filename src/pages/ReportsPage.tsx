@@ -70,10 +70,11 @@ const ReportsPage = () => {
     id: i._id || i.id,
   })) as Incident[];
 
-  const sorted = [...allIncidents].sort(
-    (a, b) =>
-      new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime(),
-  );
+  const sorted = [...allIncidents].sort((a, b) => {
+    if (a.status === "active" && b.status !== "active") return -1;
+    if (a.status !== "active" && b.status === "active") return 1;
+    return new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime();
+  });
 
   const handleAssign = async (
     incidentId: string,

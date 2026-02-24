@@ -1,4 +1,4 @@
-import { rescuers, scheduleEntries, incidents, vehicles } from "@/data/mockData";
+import { useRescuers, useScheduleEntries, useIncidents, useVehicles } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { User, Plane, Bike, Snowflake, Car, Boxes } from "lucide-react";
 import { ScheduleCalendar } from "@/components/ScheduleCalendar";
@@ -12,21 +12,25 @@ const vehicleIcons: Record<string, React.ElementType> = {
 };
 
 const RescuersPage = () => {
-  // Find rescuers currently on active incidents
+  const { data: rescuers } = useRescuers();
+  const { data: scheduleEntries } = useScheduleEntries();
+  const { data: incidents } = useIncidents();
+  const { data: vehicles } = useVehicles();
+
   const activeIncidents = incidents.filter((i) => i.status === "active");
   const rescuersOnAction = new Set(activeIncidents.flatMap((i) => i.assignedRescuers));
 
-  // Find assigned vehicles per rescuer
   const rescuerVehicle = new Map<string, typeof vehicles[0]>();
   vehicles.forEach((v) => {
     if (v.assignedTo) {
       const rescuer = rescuers.find((r) => r.name === v.assignedTo);
-      if (rescuer) rescuerVehicle.set(rescuer.id, v);
+      if (rescuer) rescuerVehicle.set(rescuer.id || rescuer.name, v);
     }
   });
 
   const getStatus = (r: typeof rescuers[0]) => {
-    if (rescuersOnAction.has(r.id)) return "action";
+    const rid = (r as any)._id || r.id;
+    if (rescuersOnAction.has(rid)) return "action";
     return r.status;
   };
 
@@ -52,17 +56,17 @@ const RescuersPage = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Rescuers list */}
         <div className="xl:col-span-1 space-y-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Wszyscy ratownicy ({rescuers.length})</h3>
           <div className="space-y-2">
             {rescuers.map((r) => {
+              const rid = (r as any)._id || r.id;
               const status = getStatus(r);
-              const vehicle = rescuerVehicle.get(r.id);
+              const vehicle = rescuerVehicle.get(rid);
               const VehicleIcon = vehicle ? vehicleIcons[vehicle.type] : null;
 
               return (
-                <div key={r.id} className="glass-card p-4 flex items-center gap-4">
+                <div key={rid} className="glass-card p-4 flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 rounded-full border-2" style={{ borderColor: r.color, backgroundColor: `${r.color}20` }}>
                     <User className="w-5 h-5" style={{ color: r.color }} />
                   </div>
@@ -87,7 +91,6 @@ const RescuersPage = () => {
           </div>
         </div>
 
-        {/* Calendar */}
         <div className="xl:col-span-2">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Grafik – Luty 2026</h3>
           <ScheduleCalendar entries={scheduleEntries} rescuers={rescuers} />

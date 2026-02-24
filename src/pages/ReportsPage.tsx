@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { incidents, rescuers, vehicles } from "@/data/mockData";
+import { useRescuers, useVehicles, useIncidents } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Users, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { IncidentDetailModal } from "@/components/IncidentDetailModal";
-import { Incident } from "@/types/rescue";
 
 const priorityLabel: Record<string, string> = {
   low: "Niski",
@@ -22,7 +21,10 @@ const priorityStyle: Record<string, string> = {
 };
 
 const ReportsPage = () => {
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const { data: incidents } = useIncidents();
+  const { data: rescuers } = useRescuers();
+  const { data: vehicles } = useVehicles();
+  const [selectedIncident, setSelectedIncident] = useState<any>(null);
 
   const sorted = [...incidents].sort(
     (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
@@ -43,10 +45,14 @@ const ReportsPage = () => {
 
       <div className="space-y-3">
         {sorted.map((incident) => {
-          const assigned = rescuers.filter((r) => incident.assignedRescuers.includes(r.id));
+          const iid = (incident as any)._id || incident.id;
+          const assigned = rescuers.filter((r) => {
+            const rid = (r as any)._id || r.id;
+            return incident.assignedRescuers.includes(rid);
+          });
           return (
             <div
-              key={incident.id}
+              key={iid}
               onClick={() => setSelectedIncident(incident)}
               className={`glass-card p-5 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all ${incident.status === "active" ? "gradient-emergency border-primary/30" : ""}`}
             >

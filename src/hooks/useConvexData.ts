@@ -10,7 +10,7 @@ import * as mockData from "@/data/mockData";
 const api: any = {
   rescuers: { list: "rescuers:list" },
   vehicles: { list: "vehicles:list" },
-  incidents: { list: "incidents:list", create: "incidents:create", assignRescuers: "incidents:assignRescuers" },
+  incidents: { list: "incidents:list", create: "incidents:create", assignRescuers: "incidents:assignRescuers", resolve: "incidents:resolve" },
   zones: { list: "zones:list" },
   scheduleEntries: { list: "scheduleEntries:list" },
 };
@@ -52,5 +52,10 @@ export function useCreateIncident() {
 
 export function useAssignRescuers() {
   const mutate = convex ? useMutation(api.incidents.assignRescuers) : null;
+  return mutate;
+}
+
+export function useResolveIncident() {
+  const mutate = convex ? useMutation(api.incidents.resolve) : null;
   return mutate;
 }

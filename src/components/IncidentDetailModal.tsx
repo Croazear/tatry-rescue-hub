@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CheckCircle } from "lucide-react";
 import { Incident, Rescuer, Vehicle } from "@/types/rescue";
 import {
   Dialog,
@@ -85,6 +86,7 @@ interface Props {
     rescuerIds: string[],
     vehicleIds: string[],
   ) => void;
+  onResolve?: (incidentId: string) => void;
 }
 
 export function IncidentDetailModal({
@@ -95,6 +97,7 @@ export function IncidentDetailModal({
   vehicles,
   allIncidents = [],
   onAssign,
+  onResolve,
 }: Props) {
   const [selectedRescuers, setSelectedRescuers] = useState<string[]>([]);
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
@@ -430,7 +433,17 @@ export function IncidentDetailModal({
         </div>
 
         {incident.status === "active" && (
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onResolve?.(incident.id);
+                onOpenChange(false);
+              }}
+            >
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Zakończ akcję
+            </Button>
             <Button
               onClick={() => {
                 onAssign?.(incident.id, selectedRescuers, selectedVehicles);

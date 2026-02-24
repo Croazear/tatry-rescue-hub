@@ -5,6 +5,7 @@ import {
   useIncidents,
   useCreateIncident,
   useAssignRescuers,
+  useResolveIncident,
 } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ const ReportsPage = () => {
   const { data: vehiclesRaw = [] } = useVehicles();
   const createIncident = useCreateIncident();
   const assignRescuers = useAssignRescuers();
+  const resolveIncident = useResolveIncident();
 
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
     null,
@@ -80,6 +82,21 @@ const ReportsPage = () => {
   ) => {
     if (assignRescuers) {
       await assignRescuers({ incidentId: incidentId as any, rescuerIds, vehicleIds });
+    }
+    setSelectedIncident(null);
+  };
+
+  const handleResolve = async (incidentId: string) => {
+    if (resolveIncident) {
+      await resolveIncident({ incidentId: incidentId as any });
+    } else {
+      setLocalIncidents((prev) =>
+        prev.map((i) =>
+          i.id === incidentId
+            ? { ...i, status: "resolved" as const, resolvedAt: new Date().toISOString() }
+            : i
+        )
+      );
     }
     setSelectedIncident(null);
   };
@@ -181,6 +198,7 @@ const ReportsPage = () => {
         vehicles={vehicles}
         allIncidents={allIncidents}
         onAssign={handleAssign}
+        onResolve={handleResolve}
       />
 
       <AddIncidentModal

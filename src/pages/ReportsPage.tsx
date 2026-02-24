@@ -1,8 +1,11 @@
-import { incidents, rescuers } from "@/data/mockData";
+import { useState } from "react";
+import { incidents, rescuers, vehicles } from "@/data/mockData";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Users, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { IncidentDetailModal } from "@/components/IncidentDetailModal";
+import { Incident } from "@/types/rescue";
 
 const priorityLabel: Record<string, string> = {
   low: "Niski",
@@ -19,6 +22,8 @@ const priorityStyle: Record<string, string> = {
 };
 
 const ReportsPage = () => {
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+
   const sorted = [...incidents].sort(
     (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
   );
@@ -28,7 +33,7 @@ const ReportsPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Zgłoszenia</h2>
-          <p className="text-muted-foreground text-sm mt-1">Wszystkie zgłoszenia posortowane od najnowszych</p>
+          <p className="text-muted-foreground text-sm mt-1">Kliknij zgłoszenie, aby przypisać ratowników i sprzęt</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <AlertTriangle className="w-4 h-4 text-primary" />
@@ -42,7 +47,8 @@ const ReportsPage = () => {
           return (
             <div
               key={incident.id}
-              className={`glass-card p-5 ${incident.status === "active" ? "gradient-emergency border-primary/30" : ""}`}
+              onClick={() => setSelectedIncident(incident)}
+              className={`glass-card p-5 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all ${incident.status === "active" ? "gradient-emergency border-primary/30" : ""}`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -83,6 +89,14 @@ const ReportsPage = () => {
           );
         })}
       </div>
+
+      <IncidentDetailModal
+        incident={selectedIncident}
+        open={!!selectedIncident}
+        onOpenChange={(open) => !open && setSelectedIncident(null)}
+        rescuers={rescuers}
+        vehicles={vehicles}
+      />
     </div>
   );
 };

@@ -5,7 +5,15 @@
 import { useQuery } from "convex/react";
 import { convex } from "@/lib/convex";
 import * as mockData from "@/data/mockData";
-import { api } from "../../convex/_generated/api";
+
+// Placeholder api object — replaced by real generated code when running `npx convex dev`
+const api: any = {
+  rescuers: { list: "rescuers:list" },
+  vehicles: { list: "vehicles:list" },
+  incidents: { list: "incidents:list" },
+  zones: { list: "zones:list" },
+  scheduleEntries: { list: "scheduleEntries:list" },
+};
 
 export function useRescuers() {
   const convexData = convex ? useQuery(api.rescuers.list) : undefined;

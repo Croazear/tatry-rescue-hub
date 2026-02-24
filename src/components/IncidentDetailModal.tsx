@@ -1,10 +1,26 @@
 import { useState } from "react";
 import { Incident, Rescuer, Vehicle } from "@/types/rescue";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Clock, Users, AlertTriangle, Plane, Bike, Snowflake, Car, Boxes } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Users,
+  AlertTriangle,
+  Plane,
+  Bike,
+  Snowflake,
+  Car,
+  Boxes,
+} from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 
@@ -23,12 +39,21 @@ const priorityStyle: Record<string, string> = {
 };
 
 // Zone difficulty determines required vehicles
-const zoneVehicleRequirements: Record<string, { required: string[]; recommended: string[] }> = {
+const zoneVehicleRequirements: Record<
+  string,
+  { required: string[]; recommended: string[] }
+> = {
   "Kasprowy Wierch": { required: ["helicopter"], recommended: ["sled"] },
-  "Rysy": { required: ["helicopter"], recommended: ["sled"] },
-  "Giewont": { required: ["helicopter"], recommended: ["sled"] },
-  "Dolina Pięciu Stawów": { required: ["quad", "snowmobile"], recommended: ["sled"] },
-  "Hala Gąsienicowa": { required: ["quad", "snowmobile"], recommended: ["sled"] },
+  Rysy: { required: ["helicopter"], recommended: ["sled"] },
+  Giewont: { required: ["helicopter"], recommended: ["sled"] },
+  "Dolina Pięciu Stawów": {
+    required: ["quad", "snowmobile"],
+    recommended: ["sled"],
+  },
+  "Hala Gąsienicowa": {
+    required: ["quad", "snowmobile"],
+    recommended: ["sled"],
+  },
   "Morskie Oko": { required: ["car", "quad"], recommended: ["snowmobile"] },
 };
 
@@ -54,29 +79,53 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   rescuers: Rescuer[];
   vehicles: Vehicle[];
-  onAssign?: (incidentId: string, rescuerIds: string[], vehicleIds: string[]) => void;
+  onAssign?: (
+    incidentId: string,
+    rescuerIds: string[],
+    vehicleIds: string[],
+  ) => void;
 }
 
-export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, vehicles, onAssign }: Props) {
+export function IncidentDetailModal({
+  incident,
+  open,
+  onOpenChange,
+  rescuers,
+  vehicles,
+  onAssign,
+}: Props) {
   const [selectedRescuers, setSelectedRescuers] = useState<string[]>([]);
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
 
   if (!incident) return null;
 
-  const requirements = zoneVehicleRequirements[incident.location] || { required: ["car"], recommended: [] };
+  const requirements = zoneVehicleRequirements[incident.location] || {
+    required: ["car"],
+    recommended: [],
+  };
 
   const toggleRescuer = (id: string) => {
-    setSelectedRescuers((prev) => (prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]));
+    setSelectedRescuers((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
+    );
   };
 
   const toggleVehicle = (id: string) => {
-    setSelectedVehicles((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
+    setSelectedVehicles((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id],
+    );
   };
 
-  const requiredVehicles = vehicles.filter((v) => requirements.required.includes(v.type));
-  const recommendedVehicles = vehicles.filter((v) => requirements.recommended.includes(v.type));
+  const requiredVehicles = vehicles.filter((v) =>
+    requirements.required.includes(v.type),
+  );
+  const recommendedVehicles = vehicles.filter((v) =>
+    requirements.recommended.includes(v.type),
+  );
   const otherVehicles = vehicles.filter(
-    (v) => !requirements.required.includes(v.type) && !requirements.recommended.includes(v.type)
+    (v) =>
+      !requirements.required.includes(v.type) &&
+      !requirements.recommended.includes(v.type),
   );
 
   return (
@@ -84,10 +133,14 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-card border-border">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            {incident.status === "active" && <span className="w-2 h-2 rounded-full bg-primary status-pulse" />}
+            {incident.status === "active" && (
+              <span className="w-2 h-2 rounded-full bg-primary status-pulse" />
+            )}
             <DialogTitle className="text-base">{incident.title}</DialogTitle>
           </div>
-          <DialogDescription className="text-sm">{incident.description}</DialogDescription>
+          <DialogDescription className="text-sm">
+            {incident.description}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Info */}
@@ -101,7 +154,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {format(new Date(incident.reportedAt), "dd MMM yyyy, HH:mm", { locale: pl })}
+            {format(new Date(incident.reportedAt), "dd MMM yyyy, HH:mm", {
+              locale: pl,
+            })}
           </span>
         </div>
 
@@ -114,7 +169,11 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
             {requirements.required.map((type) => {
               const Icon = vehicleIcons[type] || Car;
               return (
-                <Badge key={type} variant="outline" className="bg-primary/20 text-primary border-primary/30 gap-1">
+                <Badge
+                  key={type}
+                  variant="outline"
+                  className="bg-primary/20 text-primary border-primary/30 gap-1"
+                >
                   <Icon className="w-3 h-3" />
                   {vehicleTypeLabel[type]} (wymagany)
                 </Badge>
@@ -123,7 +182,11 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
             {requirements.recommended.map((type) => {
               const Icon = vehicleIcons[type] || Car;
               return (
-                <Badge key={type} variant="outline" className="bg-info/20 text-info border-info/30 gap-1">
+                <Badge
+                  key={type}
+                  variant="outline"
+                  className="bg-info/20 text-info border-info/30 gap-1"
+                >
                   <Icon className="w-3 h-3" />
                   {vehicleTypeLabel[type]} (zalecany)
                 </Badge>
@@ -159,15 +222,21 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                       checked={isAssigned || isSelected}
                       disabled={isAssigned}
                       onClick={(e) => e.stopPropagation()}
-                      onCheckedChange={() => toggleRescuer(r.id)}
+                      onCheckedChange={() => !isAssigned && toggleRescuer(r.id)}
                     />
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: r.color }} />
+                    <div
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: r.color }}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{r.name}</p>
                       <p className="text-xs text-muted-foreground">{r.role}</p>
                     </div>
                     {isAssigned && (
-                      <Badge variant="outline" className="bg-success/20 text-success border-success/30 text-[10px]">
+                      <Badge
+                        variant="outline"
+                        className="bg-success/20 text-success border-success/30 text-[10px]"
+                      >
                         Przypisany
                       </Badge>
                     )}
@@ -201,19 +270,34 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox
+                        checked={isSelected}
+                        disabled={!isAvailable}
+                        onClick={(e) => e.stopPropagation()}
+                        onCheckedChange={() =>
+                          isAvailable && toggleVehicle(v.id)
+                        }
+                      />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-muted-foreground">{v.location}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {v.location}
+                        </p>
                       </div>
                       <Badge
                         variant="outline"
                         className={`text-[10px] ${
-                          isAvailable ? "bg-success/20 text-success border-success/30" : "bg-muted text-muted-foreground"
+                          isAvailable
+                            ? "bg-success/20 text-success border-success/30"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {isAvailable ? "Dostępny" : v.status === "in-use" ? "W użyciu" : "Serwis"}
+                        {isAvailable
+                          ? "Dostępny"
+                          : v.status === "in-use"
+                            ? "W użyciu"
+                            : "Serwis"}
                       </Badge>
                     </div>
                   );
@@ -240,12 +324,35 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox
+                        checked={isSelected}
+                        disabled={!isAvailable}
+                        onClick={(e) => e.stopPropagation()}
+                        onCheckedChange={() =>
+                          isAvailable && toggleVehicle(v.id)
+                        }
+                      />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-muted-foreground">{v.location}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {v.location}
+                        </p>
                       </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] ${
+                          isAvailable
+                            ? "bg-success/20 text-success border-success/30"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {isAvailable
+                          ? "Dostępny"
+                          : v.status === "in-use"
+                            ? "W użyciu"
+                            : "Serwis"}
+                      </Badge>
                     </div>
                   );
                 })}
@@ -255,7 +362,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
 
           {otherVehicles.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground font-medium">Pozostałe</p>
+              <p className="text-xs text-muted-foreground font-medium">
+                Pozostałe
+              </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {otherVehicles.map((v) => {
                   const Icon = vehicleIcons[v.type] || Car;
@@ -271,11 +380,26 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox
+                        checked={isSelected}
+                        disabled={!isAvailable}
+                        onClick={(e) => e.stopPropagation()}
+                        onCheckedChange={() =>
+                          isAvailable && toggleVehicle(v.id)
+                        }
+                      />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
                       </div>
+                      {isAvailable && (
+                        <Badge
+                          variant="outline"
+                          className="bg-success/20 text-success border-success/30 text-[10px]"
+                        >
+                          Dostępny
+                        </Badge>
+                      )}
                     </div>
                   );
                 })}
@@ -291,7 +415,9 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                 onAssign?.(incident.id, selectedRescuers, selectedVehicles);
                 onOpenChange(false);
               }}
-              disabled={selectedRescuers.length === 0 && selectedVehicles.length === 0}
+              disabled={
+                selectedRescuers.length === 0 && selectedVehicles.length === 0
+              }
             >
               Przypisz zaznaczone
             </Button>

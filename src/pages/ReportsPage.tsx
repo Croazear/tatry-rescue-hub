@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useRescuers, useVehicles, useIncidents, useCreateIncident } from "@/hooks/useConvexData";
+import {
+  useRescuers,
+  useVehicles,
+  useIncidents,
+  useCreateIncident,
+} from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Users, AlertTriangle, Plus } from "lucide-react";
@@ -7,7 +12,7 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { IncidentDetailModal } from "@/components/IncidentDetailModal";
 import { AddIncidentModal } from "@/components/AddIncidentModal";
-import type { Incident } from "@/types/rescue";
+import type { Incident, Rescuer, Vehicle } from "@/types/rescue";
 
 const priorityLabel: Record<string, string> = {
   low: "Niski",
@@ -24,29 +29,71 @@ const priorityStyle: Record<string, string> = {
 };
 
 const ReportsPage = () => {
-  const { data: incidents } = useIncidents();
-  const { data: rescuers } = useRescuers();
-  const { data: vehicles } = useVehicles();
-  const [selectedIncident, setSelectedIncident] = useState<any>(null);
+  const { data: incidents = [] } = useIncidents();
+  const { data: rescuersRaw = [] } = useRescuers();
+  const { data: vehiclesRaw = [] } = useVehicles();
+  const createIncident = useCreateIncident();
+
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
+    null,
+  );
   const [addOpen, setAddOpen] = useState(false);
   const [localIncidents, setLocalIncidents] = useState<Incident[]>([]);
-  const createIncident = useCreateIncident();
-  const allIncidents = [...incidents, ...localIncidents];
+
+  // Normalizacja ID – Convex często zwraca _id zamiast id
+  const rescuers = rescuersRaw.map((r: any) => ({
+    ...r,
+    id: r._id || r.id,
+  })) as Rescuer[];
+
+  const vehicles = vehiclesRaw.map((v: any) => ({
+    ...v,
+    id: v._id || v.id,
+  })) as Vehicle[];
+
+  const allIncidents = [...incidents, ...localIncidents].map((i: any) => ({
+    ...i,
+    id: i._id || i.id,
+  })) as Incident[];
+
   const sorted = [...allIncidents].sort(
-    (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
+    (a, b) =>
+      new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime(),
   );
+
+  const handleAssign = (
+    incidentId: string,
+    rescuerIds: string[],
+    vehicleIds: string[],
+  ) => {
+    console.log("Przypisanie do zgłoszenia:", {
+      incidentId,
+      rescuers: rescuerIds,
+      vehicles: vehicleIds,
+    });
+    // Tutaj w przyszłości wrzucisz mutację Convex updateIncident
+    // np. updateIncident({ id: incidentId, assignedRescuers: rescuerIds, assignedVehicles: vehicleIds })
+
+    // Na razie tylko zamykamy modal
+    setSelectedIncident(null);
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Zgłoszenia</h2>
-          <p className="text-muted-foreground text-sm mt-1">Kliknij zgłoszenie, aby przypisać ratowników i sprzęt</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            Kliknij zgłoszenie, aby przypisać ratowników i sprzęt
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <AlertTriangle className="w-4 h-4 text-primary" />
-            <span>{allIncidents.filter(i => i.status === "active").length} aktywnych</span>
+            <span>
+              {allIncidents.filter((i) => i.status === "active").length}{" "}
+              aktywnych
+            </span>
           </div>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="w-4 h-4 mr-1" /> Nowe zgłoszenie
@@ -56,14 +103,13 @@ const ReportsPage = () => {
 
       <div className="space-y-3">
         {sorted.map((incident) => {
-          const iid = (incident as any)._id || incident.id;
-          const assigned = rescuers.filter((r) => {
-            const rid = (r as any)._id || r.id;
-            return incident.assignedRescuers.includes(rid);
-          });
+          const assigned = rescuers.filter((r) =>
+            incident.assignedRescuers?.includes(r.id),
+          );
+
           return (
             <div
-              key={iid}
+              key={incident.id}
               onClick={() => setSelectedIncident(incident)}
               className={`glass-card p-5 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all ${incident.status === "active" ? "gradient-emergency border-primary/30" : ""}`}
             >
@@ -75,7 +121,9 @@ const ReportsPage = () => {
                     )}
                     <h3 className="font-semibold text-sm">{incident.title}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-3">{incident.description}</p>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {incident.description}
+                  </p>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -84,20 +132,32 @@ const ReportsPage = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {format(new Date(incident.reportedAt), "dd MMM yyyy, HH:mm", { locale: pl })}
+                      {format(
+                        new Date(incident.reportedAt),
+                        "dd MMM yyyy, HH:mm",
+                        { locale: pl },
+                      )}
                     </span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" />
-                      {assigned.map((a) => a.name).join(", ")}
+                      {assigned.map((a) => a.name).join(", ") || "—"}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
-                  <Badge variant="outline" className={priorityStyle[incident.priority]}>
+                  <Badge
+                    variant="outline"
+                    className={priorityStyle[incident.priority]}
+                  >
                     {priorityLabel[incident.priority]}
                   </Badge>
-                  <Badge variant={incident.status === "active" ? "default" : "secondary"} className="text-xs">
+                  <Badge
+                    variant={
+                      incident.status === "active" ? "default" : "secondary"
+                    }
+                    className="text-xs"
+                  >
                     {incident.status === "active" ? "Aktywne" : "Zakończone"}
                   </Badge>
                 </div>
@@ -113,6 +173,7 @@ const ReportsPage = () => {
         onOpenChange={(open) => !open && setSelectedIncident(null)}
         rescuers={rescuers}
         vehicles={vehicles}
+        onAssign={handleAssign}
       />
 
       <AddIncidentModal
@@ -122,14 +183,17 @@ const ReportsPage = () => {
           if (createIncident) {
             await createIncident(data);
           } else {
-            // Fallback for mock mode
-            setLocalIncidents((prev) => [...prev, {
-              ...data,
-              id: `i-${Date.now()}`,
-              status: "active" as const,
-              reportedAt: new Date().toISOString(),
-              assignedRescuers: [],
-            }]);
+            // Fallback mock
+            setLocalIncidents((prev) => [
+              ...prev,
+              {
+                ...data,
+                id: `local-${Date.now()}`,
+                status: "active" as const,
+                reportedAt: new Date().toISOString(),
+                assignedRescuers: [],
+              },
+            ]);
           }
         }}
       />

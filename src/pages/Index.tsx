@@ -11,7 +11,10 @@ const Dashboard = () => {
   const { data: incidents } = useIncidents();
 
   const activeRescuers = rescuers.filter((r) => r.status === "active");
-  const latestIncident = incidents.find((i) => i.status === "active") || incidents[0];
+  const sortedIncidents = [...incidents].sort(
+    (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
+  );
+  const latestIncident = sortedIncidents.find((i) => i.status === "active") || sortedIncidents[0];
 
   return (
     <div className="space-y-6">

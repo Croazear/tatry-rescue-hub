@@ -28,9 +28,9 @@ interface Props {
 }
 
 const statusLabel: Record<string, string> = {
-  active: "Na zmianie",
-  standby: "Dyżur",
-  "off-duty": "Wolne",
+  active: "On duty",
+  standby: "Standby",
+  "off-duty": "Off duty",
 };
 
 const statusStyle: Record<string, string> = {
@@ -95,7 +95,7 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
                 )}
               </DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                Szczegóły ratownika
+                Rescuer details
               </DialogDescription>
             </div>
           </div>
@@ -105,7 +105,7 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
           {/* Role */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5" /> Rola
+              <Shield className="w-3.5 h-3.5" /> Role
             </Label>
             {editing ? (
               <Input value={form!.role} onChange={(e) => updateField("role", e.target.value)} className="h-9" />
@@ -123,9 +123,9 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Na zmianie</SelectItem>
-                  <SelectItem value="standby">Dyżur</SelectItem>
-                  <SelectItem value="off-duty">Wolne</SelectItem>
+                  <SelectItem value="active">On duty</SelectItem>
+                  <SelectItem value="standby">Standby</SelectItem>
+                  <SelectItem value="off-duty">Off duty</SelectItem>
                 </SelectContent>
               </Select>
             ) : (
@@ -138,7 +138,7 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
           {/* Phone */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5" /> Telefon
+              <Phone className="w-3.5 h-3.5" /> Phone
             </Label>
             {editing ? (
               <Input value={form!.phone} onChange={(e) => updateField("phone", e.target.value)} className="h-9" />
@@ -150,7 +150,7 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
           {/* Zone */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5" /> Strefa
+              <MapPin className="w-3.5 h-3.5" /> Zone
             </Label>
             {editing ? (
               <Input value={form!.zone} onChange={(e) => updateField("zone", e.target.value)} className="h-9" />
@@ -162,7 +162,7 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
           {/* Coordinates */}
           {current.lat !== 0 && (
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Współrzędne</Label>
+              <Label className="text-xs text-muted-foreground">Coordinates</Label>
               {editing ? (
                 <div className="flex gap-2">
                   <Input
@@ -196,15 +196,15 @@ export function RescuerDetailModal({ rescuer, open, onOpenChange, onSave }: Prop
           {editing ? (
             <>
               <Button variant="ghost" size="sm" onClick={cancelEditing}>
-                <X className="w-4 h-4 mr-1" /> Anuluj
+                <X className="w-4 h-4 mr-1" /> Cancel
               </Button>
               <Button size="sm" onClick={handleSave}>
-                <Save className="w-4 h-4 mr-1" /> Zapisz
+                <Save className="w-4 h-4 mr-1" /> Save
               </Button>
             </>
           ) : (
             <Button variant="outline" size="sm" onClick={startEditing}>
-              <Pencil className="w-4 h-4 mr-1" /> Edytuj
+              <Pencil className="w-4 h-4 mr-1" /> Edit
             </Button>
           )}
         </div>

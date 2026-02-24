@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Users, AlertTriangle, Plus } from "lucide-react";
 import { format } from "date-fns";
-import { pl } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { IncidentDetailModal } from "@/components/IncidentDetailModal";
 import { AddIncidentModal } from "@/components/AddIncidentModal";
 import type { Incident, Rescuer, Vehicle } from "@/types/rescue";
@@ -27,10 +27,10 @@ const zoneVehicleRequirements: Record<string, { required: string[]; recommended:
 };
 
 const priorityLabel: Record<string, string> = {
-  low: "Niski",
-  medium: "Średni",
-  high: "Wysoki",
-  critical: "Krytyczny",
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  critical: "Critical",
 };
 
 const priorityStyle: Record<string, string> = {
@@ -106,9 +106,9 @@ const ReportsPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Zgłoszenia</h2>
+          <h2 className="text-2xl font-bold">Incidents</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Kliknij zgłoszenie, aby przypisać ratowników i sprzęt
+            Click an incident to assign rescuers and equipment
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -116,11 +116,11 @@ const ReportsPage = () => {
             <AlertTriangle className="w-4 h-4 text-primary" />
             <span>
               {allIncidents.filter((i) => i.status === "active").length}{" "}
-              aktywnych
+              active
             </span>
           </div>
           <Button size="sm" onClick={() => setAddOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Nowe zgłoszenie
+            <Plus className="w-4 h-4 mr-1" /> New incident
           </Button>
         </div>
       </div>
@@ -159,7 +159,7 @@ const ReportsPage = () => {
                       {format(
                         new Date(incident.reportedAt),
                         "dd MMM yyyy, HH:mm",
-                        { locale: pl },
+                        { locale: enUS },
                       )}
                     </span>
                     <span className="flex items-center gap-1">
@@ -182,7 +182,7 @@ const ReportsPage = () => {
                     }
                     className="text-xs"
                   >
-                    {incident.status === "active" ? "Aktywne" : "Zakończone"}
+                    {incident.status === "active" ? "Active" : "Resolved"}
                   </Badge>
                 </div>
               </div>
@@ -214,12 +214,12 @@ const ReportsPage = () => {
               const zoneReqs = zoneVehicleRequirements[data.location];
               const requiredTypes = zoneReqs?.required ?? [];
 
-              // Ratownicy ze strefy zgłoszenia, aktywni
+              // Rescuers from incident zone, active only
               const autoRescuerIds = rescuers
                 .filter((r) => r.zone === data.location && r.status === "active")
                 .map((r) => r.id);
 
-              // Wymagane pojazdy – po jednym dostępnym z każdego typu
+              // Required vehicles – one available per type
               const autoVehicleIds: string[] = [];
               for (const type of requiredTypes) {
                 const v = vehicles.find(

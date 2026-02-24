@@ -101,7 +101,7 @@ export function DashboardMap({ rescuers, incidents }: Props) {
   return (
     <div className="glass-card p-4">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-        Mapa operacyjna
+        Operations map
       </h3>
       <div ref={mapElementRef} className="rounded-lg overflow-hidden" style={{ height: 400 }} />
     </div>

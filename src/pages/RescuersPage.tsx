@@ -38,10 +38,10 @@ const RescuersPage = () => {
   };
 
   const statusLabel: Record<string, string> = {
-    action: "Na akcji",
-    active: "Na zmianie",
-    standby: "Dyżur",
-    "off-duty": "Wolne",
+    action: "On mission",
+    active: "On duty",
+    standby: "Standby",
+    "off-duty": "Off duty",
   };
 
   const statusStyle: Record<string, string> = {
@@ -54,13 +54,13 @@ const RescuersPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Ratownicy</h2>
-        <p className="text-muted-foreground text-sm mt-1">Lista pracowników i grafik zmian</p>
+        <h2 className="text-2xl font-bold">Rescuers</h2>
+        <p className="text-muted-foreground text-sm mt-1">Staff list and shift schedule</p>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-1 space-y-3">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Wszyscy ratownicy ({rescuers.length})</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">All rescuers ({rescuers.length})</h3>
           <div className="space-y-2">
             {rescuers.map((r) => {
               const rid = (r as any)._id || r.id;
@@ -95,7 +95,7 @@ const RescuersPage = () => {
         </div>
 
         <div className="xl:col-span-2">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Grafik – Luty 2026</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Schedule – February 2026</h3>
           <ScheduleCalendar entries={scheduleEntries} rescuers={rescuers} />
         </div>
       </div>

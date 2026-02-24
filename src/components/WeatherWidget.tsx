@@ -5,8 +5,8 @@ const weatherData = {
   feelsLike: -14,
   wind: 45,
   humidity: 78,
-  conditions: "Śnieg, mgła powyżej 1800m",
-  warning: "Zagrożenie lawinowe: stopień 3/5",
+  conditions: "Snow, fog above 1800m",
+  warning: "Avalanche risk: level 3/5",
 };
 
 export function WeatherWidget() {
@@ -14,7 +14,7 @@ export function WeatherWidget() {
     <div className="glass-card p-4">
       <div className="flex items-center gap-2 mb-3">
         <Mountain className="w-4 h-4 text-info" />
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Pogoda – Tatry</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Weather – Tatras</h3>
         <span className="ml-auto text-xs text-muted-foreground">24.02.2026, 15:00</span>
       </div>
       <div className="flex flex-wrap items-center gap-6">
@@ -22,21 +22,21 @@ export function WeatherWidget() {
           <Thermometer className="w-5 h-5 text-info" />
           <div>
             <p className="text-lg font-bold">{weatherData.temp}°C</p>
-            <p className="text-xs text-muted-foreground">Odczuwalna {weatherData.feelsLike}°C</p>
+            <p className="text-xs text-muted-foreground">Feels like {weatherData.feelsLike}°C</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Wind className="w-5 h-5 text-muted-foreground" />
           <div>
             <p className="text-sm font-semibold">{weatherData.wind} km/h</p>
-            <p className="text-xs text-muted-foreground">Wiatr</p>
+            <p className="text-xs text-muted-foreground">Wind</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Droplets className="w-5 h-5 text-muted-foreground" />
           <div>
             <p className="text-sm font-semibold">{weatherData.humidity}%</p>
-            <p className="text-xs text-muted-foreground">Wilgotność</p>
+            <p className="text-xs text-muted-foreground">Humidity</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

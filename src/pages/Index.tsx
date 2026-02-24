@@ -25,7 +25,7 @@ const Dashboard = () => {
           <DashboardMap rescuers={activeRescuers} incidents={incidents.filter(i => i.status === "active")} />
         </div>
         <div>
-          <RescuersList rescuers={activeRescuers} title="Ratownicy na zmianie" />
+          <RescuersList rescuers={activeRescuers} title="Rescuers on duty" />
         </div>
       </div>
       <VehicleGrid vehicles={vehicles} />

@@ -79,40 +79,40 @@ export function AddIncidentModal({ open, onOpenChange, onAdd }: Props) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5 text-primary" />
-            Nowe zgłoszenie
+            New incident
           </DialogTitle>
-          <DialogDescription>Wypełnij dane zdarzenia wymagającego interwencji</DialogDescription>
+          <DialogDescription>Fill in the details of the event requiring intervention</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
           {/* Title */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Tytuł zgłoszenia *</Label>
+            <Label className="text-xs text-muted-foreground">Incident title *</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="np. Złamanie nogi – szlak na Giewont"
+              placeholder="e.g. Broken leg – Giewont trail"
               className="h-9"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Opis zdarzenia</Label>
+            <Label className="text-xs text-muted-foreground">Event description</Label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Szczegóły: stan poszkodowanego, warunki terenowe, pogoda..."
+              placeholder="Details: victim condition, terrain, weather..."
               rows={3}
             />
           </div>
 
           {/* Location */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Lokalizacja *</Label>
+            <Label className="text-xs text-muted-foreground">Location *</Label>
             <Select value={location} onValueChange={setLocation}>
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="Wybierz lokalizację" />
+                <SelectValue placeholder="Select location" />
               </SelectTrigger>
               <SelectContent>
                 {locations.map((loc) => (
@@ -124,16 +124,16 @@ export function AddIncidentModal({ open, onOpenChange, onAdd }: Props) {
 
           {/* Priority */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Priorytet</Label>
+            <Label className="text-xs text-muted-foreground">Priority</Label>
             <Select value={priority} onValueChange={(v) => setPriority(v as Incident["priority"])}>
               <SelectTrigger className="h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Niski</SelectItem>
-                <SelectItem value="medium">Średni</SelectItem>
-                <SelectItem value="high">Wysoki</SelectItem>
-                <SelectItem value="critical">Krytyczny</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="critical">Critical</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -141,10 +141,10 @@ export function AddIncidentModal({ open, onOpenChange, onAdd }: Props) {
 
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-            Anuluj
+            Cancel
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={!isValid}>
-            <Plus className="w-4 h-4 mr-1" /> Dodaj zgłoszenie
+            <Plus className="w-4 h-4 mr-1" /> Add incident
           </Button>
         </div>
       </DialogContent>

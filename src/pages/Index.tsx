@@ -3,6 +3,7 @@ import { IncidentBanner } from "@/components/IncidentBanner";
 import { RescuersList } from "@/components/RescuersList";
 import { VehicleGrid } from "@/components/VehicleGrid";
 import { DashboardMap } from "@/components/DashboardMap";
+import { WeatherWidget } from "@/components/WeatherWidget";
 
 const Dashboard = () => {
   const activeRescuers = rescuers.filter((r) => r.status === "active");
@@ -12,6 +13,9 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Latest incident banner */}
       <IncidentBanner incident={latestIncident} />
+
+      {/* Weather */}
+      <WeatherWidget />
 
       {/* Main content: map + rescuers */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -22,3 +22,22 @@ export const assignRescuers = mutation({
     await ctx.db.patch(incidentId, { assignedRescuers: merged });
   },
 });
+
+export const create = mutation({
+  args: {
+    title: v.string(),
+    description: v.string(),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    location: v.string(),
+    lat: v.number(),
+    lng: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("incidents", {
+      ...args,
+      status: "active",
+      reportedAt: new Date().toISOString(),
+      assignedRescuers: [],
+    });
+  },
+});

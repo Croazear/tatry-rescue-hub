@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRescuers, useVehicles, useIncidents } from "@/hooks/useConvexData";
+import { useRescuers, useVehicles, useIncidents, useCreateIncident } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Users, AlertTriangle, Plus } from "lucide-react";
@@ -30,6 +30,7 @@ const ReportsPage = () => {
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [localIncidents, setLocalIncidents] = useState<Incident[]>([]);
+  const createIncident = useCreateIncident();
   const allIncidents = [...incidents, ...localIncidents];
   const sorted = [...allIncidents].sort(
     (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
@@ -117,8 +118,19 @@ const ReportsPage = () => {
       <AddIncidentModal
         open={addOpen}
         onOpenChange={setAddOpen}
-        onAdd={(incident) => {
-          setLocalIncidents((prev) => [...prev, incident]);
+        onAdd={async (data) => {
+          if (createIncident) {
+            await createIncident(data);
+          } else {
+            // Fallback for mock mode
+            setLocalIncidents((prev) => [...prev, {
+              ...data,
+              id: `i-${Date.now()}`,
+              status: "active" as const,
+              reportedAt: new Date().toISOString(),
+              assignedRescuers: [],
+            }]);
+          }
         }}
       />
     </div>

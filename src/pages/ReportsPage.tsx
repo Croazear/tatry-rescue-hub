@@ -4,6 +4,7 @@ import {
   useVehicles,
   useIncidents,
   useCreateIncident,
+  useAssignRescuers,
 } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ const ReportsPage = () => {
   const { data: rescuersRaw = [] } = useRescuers();
   const { data: vehiclesRaw = [] } = useVehicles();
   const createIncident = useCreateIncident();
+  const assignRescuers = useAssignRescuers();
 
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
     null,
@@ -61,20 +63,14 @@ const ReportsPage = () => {
       new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime(),
   );
 
-  const handleAssign = (
+  const handleAssign = async (
     incidentId: string,
     rescuerIds: string[],
     vehicleIds: string[],
   ) => {
-    console.log("Przypisanie do zgłoszenia:", {
-      incidentId,
-      rescuers: rescuerIds,
-      vehicles: vehicleIds,
-    });
-    // Tutaj w przyszłości wrzucisz mutację Convex updateIncident
-    // np. updateIncident({ id: incidentId, assignedRescuers: rescuerIds, assignedVehicles: vehicleIds })
-
-    // Na razie tylko zamykamy modal
+    if (assignRescuers) {
+      await assignRescuers({ incidentId: incidentId as any, rescuerIds, vehicleIds });
+    }
     setSelectedIncident(null);
   };
 

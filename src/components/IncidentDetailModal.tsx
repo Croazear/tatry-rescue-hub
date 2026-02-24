@@ -158,6 +158,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                     <Checkbox
                       checked={isAssigned || isSelected}
                       disabled={isAssigned}
+                      onClick={(e) => e.stopPropagation()}
                       onCheckedChange={() => toggleRescuer(r.id)}
                     />
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: r.color }} />
@@ -200,7 +201,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
@@ -239,7 +240,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
@@ -270,7 +271,7 @@ export function IncidentDetailModal({ incident, open, onOpenChange, rescuers, ve
                           : "bg-secondary/50 hover:bg-secondary border border-transparent"
                       } ${!isAvailable ? "opacity-50" : ""}`}
                     >
-                      <Checkbox checked={isSelected} disabled={!isAvailable} onCheckedChange={() => toggleVehicle(v.id)} />
+                      <Checkbox checked={isSelected} disabled={!isAvailable} onClick={(e) => e.stopPropagation()} onCheckedChange={() => toggleVehicle(v.id)} />
                       <Icon className="w-4 h-4 text-muted-foreground" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>

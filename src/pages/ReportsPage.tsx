@@ -179,6 +179,7 @@ const ReportsPage = () => {
         onOpenChange={(open) => !open && setSelectedIncident(null)}
         rescuers={rescuers}
         vehicles={vehicles}
+        allIncidents={allIncidents}
         onAssign={handleAssign}
       />
 

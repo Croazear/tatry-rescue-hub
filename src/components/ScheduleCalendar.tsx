@@ -20,7 +20,7 @@ export function ScheduleCalendar({ entries, rescuers }: Props) {
     return entries.filter((e) => e.date === dateStr);
   };
 
-  const getRescuer = (id: string) => rescuers.find((r) => r.id === id);
+  const getRescuer = (id: string) => rescuers.find((r) => ((r as any)._id || r.id) === id);
 
   return (
     <div className="glass-card p-4 overflow-x-auto">

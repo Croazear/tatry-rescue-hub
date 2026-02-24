@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useRescuers, useVehicles, useIncidents } from "@/hooks/useConvexData";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Users, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Clock, Users, AlertTriangle, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { IncidentDetailModal } from "@/components/IncidentDetailModal";
+import { AddIncidentModal } from "@/components/AddIncidentModal";
+import type { Incident } from "@/types/rescue";
 
 const priorityLabel: Record<string, string> = {
   low: "Niski",
@@ -25,8 +28,10 @@ const ReportsPage = () => {
   const { data: rescuers } = useRescuers();
   const { data: vehicles } = useVehicles();
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
-
-  const sorted = [...incidents].sort(
+  const [addOpen, setAddOpen] = useState(false);
+  const [localIncidents, setLocalIncidents] = useState<Incident[]>([]);
+  const allIncidents = [...incidents, ...localIncidents];
+  const sorted = [...allIncidents].sort(
     (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
   );
 
@@ -37,9 +42,14 @@ const ReportsPage = () => {
           <h2 className="text-2xl font-bold">Zgłoszenia</h2>
           <p className="text-muted-foreground text-sm mt-1">Kliknij zgłoszenie, aby przypisać ratowników i sprzęt</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <AlertTriangle className="w-4 h-4 text-primary" />
-          <span>{incidents.filter(i => i.status === "active").length} aktywnych</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <AlertTriangle className="w-4 h-4 text-primary" />
+            <span>{allIncidents.filter(i => i.status === "active").length} aktywnych</span>
+          </div>
+          <Button size="sm" onClick={() => setAddOpen(true)}>
+            <Plus className="w-4 h-4 mr-1" /> Nowe zgłoszenie
+          </Button>
         </div>
       </div>
 
@@ -102,6 +112,14 @@ const ReportsPage = () => {
         onOpenChange={(open) => !open && setSelectedIncident(null)}
         rescuers={rescuers}
         vehicles={vehicles}
+      />
+
+      <AddIncidentModal
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onAdd={(incident) => {
+          setLocalIncidents((prev) => [...prev, incident]);
+        }}
       />
     </div>
   );

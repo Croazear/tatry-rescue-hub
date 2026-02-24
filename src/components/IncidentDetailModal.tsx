@@ -23,13 +23,13 @@ import {
   Boxes,
 } from "lucide-react";
 import { format } from "date-fns";
-import { pl } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 const priorityLabel: Record<string, string> = {
-  low: "Niski",
-  medium: "Średni",
-  high: "Wysoki",
-  critical: "Krytyczny",
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  critical: "Critical",
 };
 
 const priorityStyle: Record<string, string> = {
@@ -67,11 +67,11 @@ const vehicleIcons: Record<string, React.ElementType> = {
 };
 
 const vehicleTypeLabel: Record<string, string> = {
-  helicopter: "Helikopter",
+  helicopter: "Helicopter",
   quad: "Quad",
-  snowmobile: "Skuter śnieżny",
-  car: "Samochód",
-  sled: "Sanie",
+  snowmobile: "Snowmobile",
+  car: "Car",
+  sled: "Sled",
 };
 
 interface Props {
@@ -167,7 +167,7 @@ export function IncidentDetailModal({
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {format(new Date(incident.reportedAt), "dd MMM yyyy, HH:mm", {
-              locale: pl,
+              locale: enUS,
             })}
           </span>
         </div>
@@ -175,7 +175,7 @@ export function IncidentDetailModal({
         {/* Zone vehicle requirements info */}
         <div className="rounded-lg bg-secondary/50 p-3 space-y-1">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Wymagany sprzęt dla strefy: {incident.location}
+            Required equipment for zone: {incident.location}
           </p>
           <div className="flex flex-wrap gap-2 mt-1">
             {requirements.required.map((type) => {
@@ -187,7 +187,7 @@ export function IncidentDetailModal({
                   className="bg-primary/20 text-primary border-primary/30 gap-1"
                 >
                   <Icon className="w-3 h-3" />
-                  {vehicleTypeLabel[type]} (wymagany)
+                  {vehicleTypeLabel[type]} (required)
                 </Badge>
               );
             })}
@@ -200,7 +200,7 @@ export function IncidentDetailModal({
                   className="bg-info/20 text-info border-info/30 gap-1"
                 >
                   <Icon className="w-3 h-3" />
-                  {vehicleTypeLabel[type]} (zalecany)
+                  {vehicleTypeLabel[type]} (recommended)
                 </Badge>
               );
             })}
@@ -210,7 +210,7 @@ export function IncidentDetailModal({
         {/* Assign rescuers */}
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-            <Users className="w-3 h-3" /> Przypisz ratowników
+            <Users className="w-3 h-3" /> Assign rescuers
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {rescuers
@@ -253,7 +253,7 @@ export function IncidentDetailModal({
                         variant="outline"
                         className="bg-success/20 text-success border-success/30 text-[10px]"
                       >
-                        Przypisany
+                        Assigned
                       </Badge>
                     )}
                     {isBusy && (
@@ -261,7 +261,7 @@ export function IncidentDetailModal({
                         variant="outline"
                         className="bg-warning/20 text-warning border-warning/30 text-[10px]"
                       >
-                        Zajęty
+                        Busy
                       </Badge>
                     )}
                   </div>
@@ -273,12 +273,12 @@ export function IncidentDetailModal({
         {/* Assign vehicles */}
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Przypisz pojazdy
+            <AlertTriangle className="w-3 h-3" /> Assign vehicles
           </p>
 
           {requiredVehicles.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs text-primary font-medium">Wymagane</p>
+              <p className="text-xs text-primary font-medium">Required</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {requiredVehicles.map((v) => {
                   const Icon = vehicleIcons[v.type] || Car;
@@ -318,10 +318,10 @@ export function IncidentDetailModal({
                         }`}
                       >
                         {isAvailable
-                          ? "Dostępny"
+                          ? "Available"
                           : v.status === "in-use"
-                            ? "W użyciu"
-                            : "Serwis"}
+                            ? "In use"
+                            : "Maintenance"}
                       </Badge>
                     </div>
                   );
@@ -332,7 +332,7 @@ export function IncidentDetailModal({
 
           {recommendedVehicles.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs text-info font-medium">Zalecane</p>
+              <p className="text-xs text-info font-medium">Recommended</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {recommendedVehicles.map((v) => {
                   const Icon = vehicleIcons[v.type] || Car;
@@ -372,10 +372,10 @@ export function IncidentDetailModal({
                         }`}
                       >
                         {isAvailable
-                          ? "Dostępny"
+                          ? "Available"
                           : v.status === "in-use"
-                            ? "W użyciu"
-                            : "Serwis"}
+                            ? "In use"
+                            : "Maintenance"}
                       </Badge>
                     </div>
                   );
@@ -387,7 +387,7 @@ export function IncidentDetailModal({
           {otherVehicles.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground font-medium">
-                Pozostałe
+                Other
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {otherVehicles.map((v) => {
@@ -421,7 +421,7 @@ export function IncidentDetailModal({
                           variant="outline"
                           className="bg-success/20 text-success border-success/30 text-[10px]"
                         >
-                          Dostępny
+                           Available
                         </Badge>
                       )}
                     </div>
@@ -442,7 +442,7 @@ export function IncidentDetailModal({
               }}
             >
               <CheckCircle className="w-4 h-4 mr-1" />
-              Zakończ akcję
+              Resolve incident
             </Button>
             <Button
               onClick={() => {
@@ -453,7 +453,7 @@ export function IncidentDetailModal({
                 selectedRescuers.length === 0 && selectedVehicles.length === 0
               }
             >
-              Przypisz zaznaczone
+              Assign selected
             </Button>
           </div>
         )}

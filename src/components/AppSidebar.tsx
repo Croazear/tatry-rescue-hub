@@ -20,9 +20,9 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Mapa", url: "/mapa", icon: Map },
-  { title: "Ratownicy", url: "/ratownicy", icon: Users },
-  { title: "Zgłoszenia", url: "/zgloszenia", icon: FileText },
+  { title: "Map", url: "/mapa", icon: Map },
+  { title: "Rescuers", url: "/ratownicy", icon: Users },
+  { title: "Incidents", url: "/zgloszenia", icon: FileText },
 ];
 
 export function AppSidebar() {
@@ -34,7 +34,7 @@ export function AppSidebar() {
         </div>
         <div>
           <h1 className="text-sm font-bold text-foreground tracking-wide">TOPR</h1>
-          <p className="text-xs text-muted-foreground">Centrum Dowodzenia</p>
+          <p className="text-xs text-muted-foreground">Command Center</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ export function AppSidebar() {
       <div className="mt-auto p-4 border-t border-border">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-success status-pulse" />
-          <span className="text-xs text-muted-foreground">System aktywny</span>
+          <span className="text-xs text-muted-foreground">System active</span>
         </div>
       </div>
     </Sidebar>

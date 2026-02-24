@@ -10,12 +10,12 @@ const MapPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Mapa Tatr</h2>
-        <p className="text-muted-foreground text-sm mt-1">Strefy trudności i lokalizacje ratowników</p>
+        <h2 className="text-2xl font-bold">Tatra Map</h2>
+        <p className="text-muted-foreground text-sm mt-1">Difficulty zones and rescuer locations</p>
       </div>
 
       <div className="glass-card p-4">
-        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">Strefy trudności</h3>
+        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">Difficulty zones</h3>
         <div className="flex flex-wrap gap-4">
           {zones.map((zone) => (
             <div key={zone.id || zone.name} className="flex items-center gap-2">
@@ -29,7 +29,7 @@ const MapPage = () => {
       <TatraMap rescuers={activeRescuers} zones={zones} />
 
       <div className="glass-card p-4">
-        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">Pozycje ratowników</h3>
+        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">Rescuer positions</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {activeRescuers.map((r) => (
             <div key={r.id || r.name} className="flex items-center gap-3 p-2 rounded-md bg-secondary/50">

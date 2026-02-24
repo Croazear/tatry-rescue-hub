@@ -12,7 +12,7 @@ export function ScheduleCalendar({ entries, rescuers }: Props) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfWeek = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-based
 
-  const dayNames = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"];
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const getEntriesForDay = (day: number) => {

@@ -11,9 +11,9 @@ const vehicleIcons: Record<string, React.ElementType> = {
 };
 
 const statusLabel: Record<string, string> = {
-  available: "Dostępny",
-  "in-use": "W użyciu",
-  maintenance: "Serwis",
+  available: "Available",
+  "in-use": "In use",
+  maintenance: "Maintenance",
 };
 
 const statusStyle: Record<string, string> = {
@@ -29,7 +29,7 @@ interface Props {
 export function VehicleGrid({ vehicles }: Props) {
   return (
     <div className="glass-card p-4">
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Dostępne pojazdy</h3>
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Available vehicles</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         {vehicles.map((v) => {
           const Icon = vehicleIcons[v.type] || Car;
